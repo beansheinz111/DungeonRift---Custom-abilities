@@ -170,11 +170,13 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
 
         // ========== LINE OF EVOKER FANGS (simple & reliable) ==========
         int numFangs = 8;
-        double spacing = 1.25;
-        double playerY = player.getLocation().getY() + 1.0;   // spawn slightly above feet for better visibility
+        double spacing = 1.3;
+        double startDistance = 2.0;                    // start a bit further in front
+        double playerY = player.getLocation().getY() + 0.3;   // same level as player is standing
 
-        for (int i = 1; i <= numFangs; i++) {
-            Vector offset = direction.clone().multiply(i * spacing);
+        for (int i = 0; i < numFangs; i++) {
+            double distance = startDistance + (i * spacing);
+            Vector offset = direction.clone().multiply(distance);
             double targetX = base.getX() + offset.getX();
             double targetZ = base.getZ() + offset.getZ();
 
@@ -183,11 +185,12 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             EvokerFangs fang = world.spawn(fangLoc, EvokerFangs.class);
             fang.setOwner(player);
             // Stagger the attack delay so fangs snap shut in a wave
-            fang.setAttackDelay((i - 1) * 2);
+            fang.setAttackDelay(i * 2);
         }
 
         // Final burst at the end of the fang line
-        Location endPoint = base.clone().add(direction.clone().multiply((numFangs + 0.5) * spacing));
+        double endDistance = startDistance + ((numFangs - 1) * spacing) + 1.5;
+        Location endPoint = base.clone().add(direction.clone().multiply(endDistance));
         world.spawnParticle(Particle.EXPLOSION_EMITTER, endPoint, 1, 0, 0, 0, 0);
         world.spawnParticle(Particle.DRAGON_BREATH, endPoint, 35, 0.7, 0.7, 0.7, 0.06);
         world.spawnParticle(Particle.WITCH, endPoint, 50, 0.8, 0.8, 0.8, 0.02);
