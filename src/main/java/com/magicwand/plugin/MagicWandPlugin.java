@@ -87,8 +87,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                     ChatColor.GRAY + "Infused with ancient evocation magic.",
                     ChatColor.DARK_PURPLE + "Right-click to summon a devastating line of evoker fangs!"
             ));
-            // This matches your item: warped_fungus_on_a_stick[minecraft:item_model="template/wand"]
-            meta.setItemModel(NamespacedKey.fromString("minecraft:template/wand"));
+            // This matches your item: warped_fungus_on_a_stick[minecraft:item_model="template:wand"]
+            meta.setItemModel(NamespacedKey.fromString("template:wand"));
             
             wand.setItemMeta(meta);
         }
@@ -115,7 +115,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }
 
         NamespacedKey model = meta.getItemModel();
-        NamespacedKey expectedModel = NamespacedKey.fromString("minecraft:template/wand");
+        NamespacedKey expectedModel = NamespacedKey.fromString("template:wand");
         if (model == null || !model.equals(expectedModel)) {
             return;
         }
