@@ -87,8 +87,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                     ChatColor.GRAY + "Infused with ancient evocation magic.",
                     ChatColor.DARK_PURPLE + "Right-click to summon a devastating line of evoker fangs!"
             ));
-            // This matches your item: warped_fungus_on_a_stick[minecraft:item_model="template/wand"]
-            meta.setItemModel(NamespacedKey.fromString("minecraft:template/wand"));
+            // This matches your item: warped_fungus_on_a_stick[minecraft:item_model="template:wand"]
+            meta.setItemModel(NamespacedKey.fromString("template:wand"));
             
             wand.setItemMeta(meta);
         }
@@ -115,7 +115,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }
 
         NamespacedKey model = meta.getItemModel();
-        NamespacedKey expectedModel = NamespacedKey.fromString("minecraft:template/wand");
+        NamespacedKey expectedModel = NamespacedKey.fromString("template:wand");
         if (model == null || !model.equals(expectedModel)) {
             return;
         }
@@ -168,28 +168,22 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             world.spawnParticle(Particle.END_ROD, particleLoc, 3, 0.12, 0.25, 0.12, 0.03);
         }
 
-        // ========== LINE OF EVOKER FANGS (terrain-following for reliability) ==========
+        // ========== LINE OF EVOKER FANGS (simple & reliable) ==========
         int numFangs = 8;
         double spacing = 1.25;
+        double playerY = player.getLocation().getY() + 0.6;   // spawn at player's feet level
 
         for (int i = 1; i <= numFangs; i++) {
             Vector offset = direction.clone().multiply(i * spacing);
             double targetX = base.getX() + offset.getX();
             double targetZ = base.getZ() + offset.getZ();
 
-            int blockX = (int) Math.floor(targetX);
-            int blockZ = (int) Math.floor(targetZ);
-
-            // Get the actual ground height at this position in front of the player
-            int groundY = world.getHighestBlockYAt(blockX, blockZ);
-            groundY = Math.max(world.getMinHeight() + 1, Math.min(groundY, world.getMaxHeight() - 2));
-
-            Location fangLoc = new Location(world, targetX, groundY + 1.1, targetZ);
+            Location fangLoc = new Location(world, targetX, playerY, targetZ);
 
             EvokerFangs fang = world.spawn(fangLoc, EvokerFangs.class);
             fang.setOwner(player);
-            // Stagger the attack delay so fangs snap shut in a satisfying wave from closest to farthest
-            fang.setAttackDelay((i - 1) * 3);
+            // Stagger the attack delay so fangs snap shut in a wave
+            fang.setAttackDelay((i - 1) * 2);
         }
 
         // Final burst at the end of the fang line
