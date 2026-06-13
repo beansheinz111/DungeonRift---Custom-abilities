@@ -87,8 +87,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                     ChatColor.GRAY + "Infused with ancient evocation magic.",
                     ChatColor.DARK_PURPLE + "Right-click to summon a devastating line of evoker fangs!"
             ));
-            // This matches your item: warped_fungus_on_a_stick[item_model="template/wand"]
-            meta.setItemModel(new NamespacedKey("minecraft", "template/wand"));
+            // This matches your item: warped_fungus_on_a_stick[minecraft:item_model="template/wand"]
+            meta.setItemModel(NamespacedKey.fromString("minecraft:template/wand"));
             
             wand.setItemMeta(meta);
         }
@@ -115,7 +115,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }
 
         NamespacedKey model = meta.getItemModel();
-        if (model == null || !"template/wand".equals(model.getKey())) {
+        NamespacedKey expectedModel = NamespacedKey.fromString("minecraft:template/wand");
+        if (model == null || !model.equals(expectedModel)) {
             return;
         }
 
@@ -155,6 +156,11 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         player.playSound(eye, Sound.ENTITY_EVOKER_CAST_SPELL, 1.2f, 0.95f);
         player.playSound(eye, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 0.8f, 1.3f);
 
+        // Satisfying magic "ding" / chime (layered for nice feel)
+        player.playSound(eye, Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.9f);
+        player.playSound(eye, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.7f);
+        player.playSound(eye, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6f, 1.6f);
+
         // ========== PARTICLE LINE ==========
         for (double d = 0.7; d < 11; d += 0.55) {
             Location particleLoc = base.clone().add(direction.clone().multiply(d));
@@ -162,26 +168,28 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             world.spawnParticle(Particle.END_ROD, particleLoc, 3, 0.12, 0.25, 0.12, 0.03);
         }
 
-        // ========== LINE OF EVOKER FANGS ==========
+        // ========== LINE OF EVOKER FANGS (terrain-following for reliability) ==========
         int numFangs = 8;
         double spacing = 1.25;
 
         for (int i = 1; i <= numFangs; i++) {
-            Location fangLoc = base.clone().add(direction.clone().multiply(i * spacing));
+            Vector offset = direction.clone().multiply(i * spacing);
+            double targetX = base.getX() + offset.getX();
+            double targetZ = base.getZ() + offset.getZ();
 
-            // Simple ground adjustment (optional but nicer)
-            for (int down = 0; down < 5; down++) {
-                org.bukkit.block.Block blockBelow = fangLoc.clone().subtract(0, down, 0).getBlock();
-                if (blockBelow.getType().isSolid()) {
-                    fangLoc.setY(blockBelow.getY() + 1.05);
-                    break;
-                }
-            }
+            int blockX = (int) Math.floor(targetX);
+            int blockZ = (int) Math.floor(targetZ);
+
+            // Get the actual ground height at this position in front of the player
+            int groundY = world.getHighestBlockYAt(blockX, blockZ);
+            groundY = Math.max(world.getMinHeight() + 1, Math.min(groundY, world.getMaxHeight() - 2));
+
+            Location fangLoc = new Location(world, targetX, groundY + 1.1, targetZ);
 
             EvokerFangs fang = world.spawn(fangLoc, EvokerFangs.class);
             fang.setOwner(player);
-            // Stagger the attack delay so fangs snap shut in a wave from closest to farthest
-            fang.setAttackDelay((i - 1) * 2);
+            // Stagger the attack delay so fangs snap shut in a satisfying wave from closest to farthest
+            fang.setAttackDelay((i - 1) * 3);
         }
 
         // Final burst at the end of the fang line
