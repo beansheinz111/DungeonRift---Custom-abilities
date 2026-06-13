@@ -15,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Arrays;
 
@@ -126,6 +128,9 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }
         player.setCooldown(Material.WARPED_FUNGUS_ON_A_STICK, 40); // 2 second cooldown
 
+        // Show cooldown countdown in action bar
+        showCooldownActionBar(player, 40);
+
         event.setCancelled(true);
 
         // Cast the magic!
@@ -194,5 +199,29 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         world.spawnParticle(Particle.EXPLOSION_EMITTER, endPoint, 1, 0, 0, 0, 0);
         world.spawnParticle(Particle.DRAGON_BREATH, endPoint, 35, 0.7, 0.7, 0.7, 0.06);
         world.spawnParticle(Particle.WITCH, endPoint, 50, 0.8, 0.8, 0.8, 0.02);
+    }
+
+    // ==================== COOLDOWN ACTION BAR ====================
+    private void showCooldownActionBar(Player player, int totalTicks) {
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int ticksLeft = totalTicks;
+
+            @Override
+            public void run() {
+                if (!player.isOnline() || !player.hasCooldown(Material.WARPED_FUNGUS_ON_A_STICK)) {
+                    player.sendActionBar(Component.text(""));
+                    this.cancel();
+                    return;
+                }
+
+                ticksLeft = player.getCooldown(Material.WARPED_FUNGUS_ON_A_STICK);
+                double seconds = ticksLeft / 20.0;
+
+                Component message = Component.text("Cooldown: ", NamedTextColor.GRAY)
+                        .append(Component.text(String.format("%.1fs", seconds), NamedTextColor.RED));
+
+                player.sendActionBar(message);
+            }
+        }.runTaskTimer(this, 0L, 2L); // Update every 2 ticks (0.1s)
     }
 }
