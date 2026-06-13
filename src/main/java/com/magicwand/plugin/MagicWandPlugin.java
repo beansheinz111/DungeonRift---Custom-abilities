@@ -133,8 +133,6 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
     }
 
     private void castEvokerFangLine(Player player) {
-        player.sendMessage("§a[Debug] Spell cast detected!");   // TEMP DEBUG
-
         World world = player.getWorld();
         Location eye = player.getEyeLocation();
 
@@ -152,7 +150,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         // Big magic burst at caster
         world.spawnParticle(Particle.WITCH, eye, 120, 1.2, 1.2, 1.2, 0.03);
         world.spawnParticle(Particle.END_ROD, eye, 40, 0.9, 0.9, 0.9, 0.08);
-        world.spawnParticle(Particle.DRAGON_BREATH, eye, 25, 0.6, 0.6, 0.6, 0.04);
+        // DRAGON_BREATH removed temporarily to fix crash on this Paper version
 
         // Sound - louder volumes
         player.playSound(eye, Sound.ENTITY_EVOKER_CAST_SPELL, 2.0f, 1.0f);
@@ -174,8 +172,6 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         int numFangs = 8;
         double spacing = 1.25;
         double playerY = player.getLocation().getY() + 1.0;   // spawn slightly above feet for better visibility
-
-        getLogger().info("Attempting to spawn " + numFangs + " evoker fangs..."); // TEMP DEBUG
 
         for (int i = 1; i <= numFangs; i++) {
             Vector offset = direction.clone().multiply(i * spacing);
