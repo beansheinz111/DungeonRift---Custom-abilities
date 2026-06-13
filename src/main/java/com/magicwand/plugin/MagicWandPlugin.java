@@ -152,14 +152,14 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         world.spawnParticle(Particle.END_ROD, eye, 40, 0.9, 0.9, 0.9, 0.08);
         world.spawnParticle(Particle.DRAGON_BREATH, eye, 25, 0.6, 0.6, 0.6, 0.04);
 
-        // Sound
-        player.playSound(eye, Sound.ENTITY_EVOKER_CAST_SPELL, 1.2f, 0.95f);
-        player.playSound(eye, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 0.8f, 1.3f);
+        // Sound - louder volumes
+        player.playSound(eye, Sound.ENTITY_EVOKER_CAST_SPELL, 2.0f, 1.0f);
+        player.playSound(eye, Sound.ENTITY_EVOKER_PREPARE_ATTACK, 1.5f, 1.2f);
 
-        // Satisfying magic "ding" / chime (layered for nice feel)
-        player.playSound(eye, Sound.BLOCK_NOTE_BLOCK_BELL, 1.0f, 1.9f);
-        player.playSound(eye, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8f, 1.7f);
-        player.playSound(eye, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.6f, 1.6f);
+        // Satisfying magic "ding" / chime (much louder)
+        player.playSound(eye, Sound.BLOCK_NOTE_BLOCK_BELL, 2.0f, 1.8f);
+        player.playSound(eye, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 1.8f, 1.6f);
+        player.playSound(eye, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.5f, 1.5f);
 
         // ========== PARTICLE LINE ==========
         for (double d = 0.7; d < 11; d += 0.55) {
@@ -171,7 +171,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         // ========== LINE OF EVOKER FANGS (simple & reliable) ==========
         int numFangs = 8;
         double spacing = 1.25;
-        double playerY = player.getLocation().getY() + 0.6;   // spawn at player's feet level
+        double playerY = player.getLocation().getY() + 1.0;   // spawn slightly above feet for better visibility
 
         for (int i = 1; i <= numFangs; i++) {
             Vector offset = direction.clone().multiply(i * spacing);
