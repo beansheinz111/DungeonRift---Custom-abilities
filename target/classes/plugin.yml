@@ -1,0 +1,18 @@
+name: MagicWandPlugin
+version: 1.0
+main: com.magicwand.plugin.MagicWandPlugin
+api-version: 1.21
+author: Grok
+description: Adds magic effects to a custom warped_fungus_on_a_stick with item_model="template/wand". Right-click casts a line of evoker fangs + particles.
+
+commands:
+  givewand:
+    description: Gives the player the Arcane Wand (warped_fungus_on_a_stick with custom item model)
+    usage: /<command> [player]
+    permission: magicwand.give
+    permission-message: You do not have permission to give the wand.
+
+permissions:
+  magicwand.give:
+    description: Allows giving the magic wand
+    default: op
