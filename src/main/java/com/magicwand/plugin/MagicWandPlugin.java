@@ -133,6 +133,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
     }
 
     private void castEvokerFangLine(Player player) {
+        player.sendMessage("§a[Debug] Spell cast detected!");   // TEMP DEBUG
+
         World world = player.getWorld();
         Location eye = player.getEyeLocation();
 
@@ -172,6 +174,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         int numFangs = 8;
         double spacing = 1.25;
         double playerY = player.getLocation().getY() + 1.0;   // spawn slightly above feet for better visibility
+
+        getLogger().info("Attempting to spawn " + numFangs + " evoker fangs..."); // TEMP DEBUG
 
         for (int i = 1; i <= numFangs; i++) {
             Vector offset = direction.clone().multiply(i * spacing);
