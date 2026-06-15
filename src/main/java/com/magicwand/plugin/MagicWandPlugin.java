@@ -281,17 +281,9 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         Location center = player.getLocation();
         World world = player.getWorld();
 
-        // Dark particle effect (black radius)
-        for (double r = 1.5; r <= 5.5; r += 0.8) {
-            for (int i = 0; i < 24; i++) {
-                double angle = (2 * Math.PI / 24) * i;
-                double x = Math.cos(angle) * r;
-                double z = Math.sin(angle) * r;
-                Location pLoc = center.clone().add(x, 0.8, z);
-                world.spawnParticle(Particle.SMOKE, pLoc, 1, 0, 0, 0, 0);
-                world.spawnParticle(Particle.SQUID_INK, pLoc, 1, 0, 0, 0, 0);
-            }
-        }
+        // Simple dark particle burst
+        world.spawnParticle(Particle.SMOKE, center, 150, 4, 2, 4, 0.05);
+        world.spawnParticle(Particle.SQUID_INK, center, 80, 3, 1.5, 3, 0.03);
 
         // Wither particles + sound
         world.spawnParticle(Particle.WITHER, center, 80, 3, 1, 3, 0.1);
