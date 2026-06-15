@@ -11,8 +11,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 import net.kyori.adventure.text.Component;
@@ -105,36 +108,41 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }
 
         Player player = event.getPlayer();
+        EquipmentSlot hand = event.getHand();
         ItemStack item = event.getItem();
 
-        if (item == null || item.getType() != Material.WARPED_FUNGUS_ON_A_STICK) {
-            return;
-        }
+        if (item == null || !item.hasItemMeta()) return;
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasItemModel()) {
-            return;
-        }
+        if (meta == null || !meta.hasItemModel()) return;
 
         NamespacedKey model = meta.getItemModel();
-        NamespacedKey expectedModel = NamespacedKey.fromString("template:wand");
-        if (model == null || !model.equals(expectedModel)) {
+
+        // === MAGIC BOOK (Offhand only) ===
+        if (hand == EquipmentSlot.OFF_HAND && item.getType() == Material.CARROT_ON_A_STICK) {
+            NamespacedKey bookModel = NamespacedKey.fromString("template:magic_book");
+            if (model.equals(bookModel)) {
+                if (player.hasCooldown(Material.CARROT_ON_A_STICK)) return;
+
+                player.setCooldown(Material.CARROT_ON_A_STICK, 100); // 5 second cooldown
+                event.setCancelled(true);
+                castMagicBook(player);
+            }
             return;
         }
 
-        // Prevent spamming
-        if (player.hasCooldown(Material.WARPED_FUNGUS_ON_A_STICK)) {
-            return;
+        // === WARPED FUNGUS WAND (Main hand) ===
+        if (hand == EquipmentSlot.HAND && item.getType() == Material.WARPED_FUNGUS_ON_A_STICK) {
+            NamespacedKey wandModel = NamespacedKey.fromString("template:wand");
+            if (model.equals(wandModel)) {
+                if (player.hasCooldown(Material.WARPED_FUNGUS_ON_A_STICK)) return;
+
+                player.setCooldown(Material.WARPED_FUNGUS_ON_A_STICK, 40);
+                showCooldownActionBar(player, 40);
+                event.setCancelled(true);
+                castEvokerFangLine(player);
+            }
         }
-        player.setCooldown(Material.WARPED_FUNGUS_ON_A_STICK, 40); // 2 second cooldown
-
-        // Show cooldown countdown in action bar
-        showCooldownActionBar(player, 40);
-
-        event.setCancelled(true);
-
-        // Cast the magic!
-        castEvokerFangLine(player);
     }
 
     private void castEvokerFangLine(Player player) {
@@ -223,5 +231,39 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                 player.sendActionBar(message);
             }
         }.runTaskTimer(this, 0L, 2L); // Update every 2 ticks (0.1s)
+    }
+
+    // ==================== MAGIC BOOK (Offhand) ====================
+    private void castMagicBook(Player player) {
+        World world = player.getWorld();
+        Location loc = player.getLocation();
+
+        // Magic particles around the player
+        for (int i = 0; i < 50; i++) {
+            double angle = Math.random() * Math.PI * 2;
+            double x = Math.cos(angle) * 1.5;
+            double z = Math.sin(angle) * 1.5;
+            Location particleLoc = loc.clone().add(x, 1 + Math.random() * 1.5, z);
+            world.spawnParticle(Particle.WITCH, particleLoc, 2, 0.2, 0.3, 0.2, 0.02);
+            world.spawnParticle(Particle.END_ROD, particleLoc, 1, 0.1, 0.2, 0.1, 0.01);
+        }
+
+        // Sounds
+        player.playSound(loc, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.2f, 1.1f);
+        player.playSound(loc, Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 1.3f);
+        player.playSound(loc, Sound.ENTITY_EVOKER_CAST_SPELL, 0.8f, 1.4f);
+
+        // Apply buffs
+        player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.SPEED, 300, 1, true, true)); // Speed II - 15 seconds
+
+        player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.STRENGTH, 240, 0, true, true)); // Strength I - 12 seconds
+
+        player.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.REGENERATION, 200, 0, true, true)); // Regeneration I - 10 seconds
+
+        // Message
+        player.sendMessage(Component.text("You feel a surge of magical energy!", NamedTextColor.LIGHT_PURPLE));
     }
 }
