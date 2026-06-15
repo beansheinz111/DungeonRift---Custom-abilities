@@ -233,20 +233,34 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         }.runTaskTimer(this, 0L, 2L); // Update every 2 ticks (0.1s)
     }
 
+    // ==================== HELIX PARTICLE EFFECT ====================
+    private void spawnMagicHelix(Location center, double radius, double height, double density) {
+        World world = center.getWorld();
+
+        for (double y = 0; y < height; y += density) {
+            double angle = y * 2.5; // Controls how tight the spiral is
+
+            // First helix (WITCH particles)
+            double x1 = Math.cos(angle) * radius;
+            double z1 = Math.sin(angle) * radius;
+            Location loc1 = center.clone().add(x1, y, z1);
+            world.spawnParticle(Particle.WITCH, loc1, 2, 0.05, 0.05, 0.05, 0.01);
+
+            // Second helix (END_ROD particles) - offset by 180 degrees
+            double x2 = Math.cos(angle + Math.PI) * radius;
+            double z2 = Math.sin(angle + Math.PI) * radius;
+            Location loc2 = center.clone().add(x2, y, z2);
+            world.spawnParticle(Particle.END_ROD, loc2, 1, 0.03, 0.03, 0.03, 0.005);
+        }
+    }
+
     // ==================== MAGIC BOOK (Offhand) ====================
     private void castMagicBook(Player player) {
         World world = player.getWorld();
         Location loc = player.getLocation();
 
-        // Magic particles around the player
-        for (int i = 0; i < 50; i++) {
-            double angle = Math.random() * Math.PI * 2;
-            double x = Math.cos(angle) * 1.5;
-            double z = Math.sin(angle) * 1.5;
-            Location particleLoc = loc.clone().add(x, 1 + Math.random() * 1.5, z);
-            world.spawnParticle(Particle.WITCH, particleLoc, 2, 0.2, 0.3, 0.2, 0.02);
-            world.spawnParticle(Particle.END_ROD, particleLoc, 1, 0.1, 0.2, 0.1, 0.01);
-        }
+        // === FULL HELIX EFFECT ===
+        spawnMagicHelix(loc, 1.8, 4.0, 0.25);
 
         // Sounds
         player.playSound(loc, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.2f, 1.1f);
