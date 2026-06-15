@@ -10,12 +10,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 import net.kyori.adventure.text.Component;
@@ -143,6 +145,49 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                 castEvokerFangLine(player);
             }
         }
+    }
+
+    // ==================== WIND SWORD (Hit Entity) ====================
+    @EventHandler
+    public void onEntityHitWithWindSword(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player player)) return;
+
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (item.getType() != Material.DIAMOND_SWORD || !item.hasItemMeta()) return;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasItemModel()) return;
+
+        NamespacedKey model = meta.getItemModel();
+        if (!model.equals(NamespacedKey.fromString("template:wind_sword"))) return;
+
+        // Prevent spam
+        if (player.hasCooldown(Material.DIAMOND_SWORD)) return;
+        player.setCooldown(Material.DIAMOND_SWORD, 60); // 3 second cooldown
+
+        // Elevate the player (strong enough for mace smash)
+        player.setVelocity(player.getVelocity().setY(1.6));
+
+        Location loc = player.getLocation();
+        World world = player.getWorld();
+
+        // Cloud particles
+        for (int i = 0; i < 40; i++) {
+            double x = (Math.random() - 0.5) * 2.5;
+            double y = Math.random() * 2;
+            double z = (Math.random() - 0.5) * 2.5;
+            world.spawnParticle(Particle.CLOUD, loc.clone().add(x, y, z), 1, 0.1, 0.1, 0.1, 0.02);
+        }
+
+        // Sounds (wind + whoosh)
+        player.playSound(loc, Sound.ENTITY_BREEZE_SHOOT, 1.0f, 1.2f);
+        player.playSound(loc, Sound.ITEM_ELYTRA_FLYING, 0.6f, 1.5f);
+        player.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 0.8f);
+
+        // Fall protection + allow mace smash
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 100, 0, true, false)); // 5 seconds
+
+        player.sendMessage(Component.text("Wind burst!", NamedTextColor.AQUA));
     }
 
     private void castEvokerFangLine(Player player) {
