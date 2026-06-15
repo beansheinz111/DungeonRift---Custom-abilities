@@ -21,7 +21,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.Vector;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
@@ -317,8 +316,11 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         // Apply Wither II to nearby entities
         double radius = 5.0;
         for (org.bukkit.entity.Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
-            if (entity instanceof org.bukkit.entity.LivingEntity living && living != player) {
-                living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
+            if (entity instanceof org.bukkit.entity.LivingEntity) {
+                org.bukkit.entity.LivingEntity living = (org.bukkit.entity.LivingEntity) entity;
+                if (living != player) {
+                    living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
+                }
             }
         }
     }
