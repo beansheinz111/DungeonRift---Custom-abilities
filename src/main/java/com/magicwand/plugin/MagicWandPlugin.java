@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -24,8 +25,13 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExecutor {
+
+    private final Set<UUID> windSwordUsers = new HashSet<>();
 
     @Override
     public void onEnable() {
@@ -179,15 +185,26 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             world.spawnParticle(Particle.CLOUD, loc.clone().add(x, y, z), 1, 0.1, 0.1, 0.1, 0.02);
         }
 
-        // Sounds (wind + whoosh)
+        // Sounds (wind burst)
         player.playSound(loc, Sound.ENTITY_BREEZE_SHOOT, 1.0f, 1.2f);
-        player.playSound(loc, Sound.ITEM_ELYTRA_FLYING, 0.6f, 1.5f);
         player.playSound(loc, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 0.8f);
 
-        // Fall protection + allow mace smash
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 100, 0, true, false)); // 5 seconds
+        // Track player for fall damage protection
+        windSwordUsers.add(player.getUniqueId());
 
         player.sendMessage(Component.text("Wind burst!", NamedTextColor.AQUA));
+    }
+
+    @EventHandler
+    public void onFallDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (event.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+
+        if (windSwordUsers.remove(player.getUniqueId())) {
+            event.setCancelled(true); // No fall damage
+            // Play landing sound to "stop" wind effect
+            player.playSound(player.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.8f, 1.2f);
+        }
     }
 
     private void castEvokerFangLine(Player player) {
