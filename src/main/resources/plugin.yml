@@ -7,12 +7,21 @@ description: Adds magic effects to a custom warped_fungus_on_a_stick with item_m
 
 commands:
   givewand:
-    description: Gives the player the Arcane Wand (warped_fungus_on_a_stick with custom item model)
+    description: Gives the player the Arcane Wand
     usage: /<command> [player]
     permission: magicwand.give
-    permission-message: You do not have permission to give the wand.
+
+  givemagicbook:
+    description: Gives the player the Tome of Arcane Surge (Magic Book)
+    usage: /<command> [player]
+    permission: magicwand.give
+
+  givewindsword:
+    description: Gives the player the Zephyr Blade (Wind Sword)
+    usage: /<command> [player]
+    permission: magicwand.give
 
 permissions:
   magicwand.give:
-    description: Allows giving the magic wand
+    description: Allows giving custom magic items
     default: op

@@ -54,10 +54,6 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
     // ==================== COMMAND ====================
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!label.equalsIgnoreCase("givewand")) {
-            return false;
-        }
-
         if (!sender.hasPermission("magicwand.give")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to use this command.");
             return true;
@@ -73,18 +69,41 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         } else if (sender instanceof Player) {
             target = (Player) sender;
         } else {
-            sender.sendMessage(ChatColor.RED + "Console must specify a player: /givewand <player>");
+            sender.sendMessage(ChatColor.RED + "Console must specify a player.");
             return true;
         }
 
-        ItemStack wand = createMagicWand();
-        target.getInventory().addItem(wand);
+        ItemStack item;
+        String itemName;
+        String giveMessage;
 
-        String msg = ChatColor.LIGHT_PURPLE + "You have been given the " + ChatColor.BOLD + "Arcane Wand" + ChatColor.RESET + ChatColor.LIGHT_PURPLE + "!";
+        switch (label.toLowerCase()) {
+            case "givewand":
+                item = createMagicWand();
+                itemName = "Arcane Wand";
+                giveMessage = "Arcane Wand";
+                break;
+            case "givemagicbook":
+                item = createMagicBook();
+                itemName = "Tome of Arcane Surge";
+                giveMessage = "Magic Book";
+                break;
+            case "givewindsword":
+                item = createWindSword();
+                itemName = "Zephyr Blade";
+                giveMessage = "Wind Sword";
+                break;
+            default:
+                return false;
+        }
+
+        target.getInventory().addItem(item);
+
+        String msg = ChatColor.LIGHT_PURPLE + "You have been given the " + ChatColor.BOLD + itemName + ChatColor.RESET + ChatColor.LIGHT_PURPLE + "!";
         target.sendMessage(msg);
 
         if (sender != target) {
-            sender.sendMessage(ChatColor.GREEN + "Gave Arcane Wand to " + target.getName() + ".");
+            sender.sendMessage(ChatColor.GREEN + "Gave " + giveMessage + " to " + target.getName() + ".");
         }
 
         return true;
@@ -106,6 +125,41 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             wand.setItemMeta(meta);
         }
         return wand;
+    }
+
+    private ItemStack createMagicBook() {
+        ItemStack book = new ItemStack(Material.CARROT_ON_A_STICK);
+        ItemMeta meta = book.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Tome of Arcane Surge");
+            meta.setLore(Arrays.asList(
+                    ChatColor.GRAY + "A mystical tome pulsing with raw magical energy.",
+                    ChatColor.DARK_PURPLE + "Hold in offhand and right-click to gain",
+                    ChatColor.DARK_PURPLE + "temporary Speed, Strength, and Regeneration."
+            ));
+            meta.setItemModel(NamespacedKey.fromString("template:magic_book"));
+            book.setItemMeta(meta);
+        }
+        return book;
+    }
+
+    private ItemStack createWindSword() {
+        ItemStack sword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta meta = sword.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Zephyr Blade");
+            meta.setLore(Arrays.asList(
+                    ChatColor.GRAY + "A blade infused with the power of the wind.",
+                    ChatColor.DARK_AQUA + "Strike enemies to launch yourself skyward",
+                    ChatColor.DARK_AQUA + "with cloud particles and wind bursts.",
+                    ChatColor.GRAY + "Fall damage is nullified after use."
+            ));
+            meta.setItemModel(NamespacedKey.fromString("template:wind_sword"));
+            sword.setItemMeta(meta);
+        }
+        return sword;
     }
 
     // ==================== EVENT LISTENER ====================
