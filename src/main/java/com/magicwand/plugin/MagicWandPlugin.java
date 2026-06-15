@@ -6,6 +6,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.EvokerFangs;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -315,9 +316,9 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
 
         // Apply Wither II to nearby entities
         double radius = 5.0;
-        for (org.bukkit.entity.Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
-            if (entity instanceof org.bukkit.entity.LivingEntity) {
-                org.bukkit.entity.LivingEntity living = (org.bukkit.entity.LivingEntity) entity;
+        for (Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
+            if (entity instanceof LivingEntity) {
+                LivingEntity living = (LivingEntity) entity;
                 if (living != player) {
                     living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
                 }
