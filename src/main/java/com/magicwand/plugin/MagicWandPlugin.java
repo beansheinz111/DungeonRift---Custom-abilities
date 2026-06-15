@@ -100,10 +100,10 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                 itemName = "Skull Crusher";
                 giveMessage = "Skull Crusher";
                 break;
-            case "giveflamecrusher":
-                item = createFlameCrusher();
-                itemName = "Flame Crusher";
-                giveMessage = "Flame Crusher";
+            case "givefiremace":
+                item = createFireMace();
+                itemName = "Fire Mace";
+                giveMessage = "Fire Mace";
                 break;
             default:
                 return false;
@@ -191,18 +191,18 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         return mace;
     }
 
-    private ItemStack createFlameCrusher() {
+    private ItemStack createFireMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
 
         if (meta != null) {
-            meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Flame Crusher");
+            meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Fire Mace");
             meta.setLore(Arrays.asList(
-                    ChatColor.GRAY + "A mace engulfed in eternal flames.",
-                    ChatColor.DARK_RED + "Smashing enemies releases a burst of fire,",
-                    ChatColor.DARK_RED + "igniting all nearby foes."
+                    ChatColor.GRAY + "A mace wreathed in roaring flames.",
+                    ChatColor.DARK_RED + "Landing a smash attack engulfs nearby",
+                    ChatColor.DARK_RED + "enemies in fire."
             ));
-            meta.setItemModel(NamespacedKey.fromString("flame_crusher"));
+            meta.setItemModel(NamespacedKey.fromString("template:fire_mace"));
             mace.setItemMeta(meta);
         }
         return mace;
@@ -320,9 +320,9 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
 
         NamespacedKey model = meta.getItemModel();
         boolean isSkullCrusher = model.equals(NamespacedKey.fromString("template:skull_crusher"));
-        boolean isFlameCrusher = model.equals(NamespacedKey.fromString("flame_crusher"));
+        boolean isFireMace = model.equals(NamespacedKey.fromString("template:fire_mace"));
 
-        if (!isSkullCrusher && !isFlameCrusher) return;
+        if (!isSkullCrusher && !isFireMace) return;
 
         // Only trigger on falling attacks (mace smash style)
         if (player.getFallDistance() < 0.5) return;
@@ -349,7 +349,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             }
         }
 
-        if (isFlameCrusher) {
+        if (isFireMace) {
             // === FLAME CRUSHER EFFECTS ===
             world.spawnParticle(Particle.FLAME, center, 200, 4, 2, 4, 0.08);
             world.spawnParticle(Particle.LAVA, center, 60, 3, 1.5, 3, 0.05);
