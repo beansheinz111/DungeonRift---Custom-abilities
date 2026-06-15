@@ -238,7 +238,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         World world = center.getWorld();
 
         for (double y = 0; y < height; y += density) {
-            double angle = y * 4.5; // Tighter + more spirals
+            double angle = y * 3.2; // Balanced for clear spiral look
 
             // First helix (WITCH particles)
             double x1 = Math.cos(angle) * radius;
@@ -259,8 +259,8 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         World world = player.getWorld();
         Location loc = player.getLocation();
 
-        // === FULL HELIX EFFECT (tighter + more spirals) ===
-        spawnMagicHelix(loc, 1.6, 4.2, 0.22);
+        // === FULL HELIX EFFECT ===
+        spawnMagicHelix(loc, 1.7, 4.0, 0.20);
 
         // Sounds
         player.playSound(loc, Sound.ENTITY_ILLUSIONER_PREPARE_MIRROR, 1.2f, 1.1f);
