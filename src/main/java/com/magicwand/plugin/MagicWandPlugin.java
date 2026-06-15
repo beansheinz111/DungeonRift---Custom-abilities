@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -187,7 +186,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             if (model.equals(bookModel)) {
                 if (player.hasCooldown(Material.CARROT_ON_A_STICK)) return;
 
-                player.setCooldown(Material.CARROT_ON_A_STICK, 600); // 30 second cooldown
+                player.setCooldown(Material.CARROT_ON_A_STICK, 100); // 5 second cooldown
                 event.setCancelled(true);
                 castMagicBook(player);
             }
@@ -259,67 +258,6 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             event.setCancelled(true); // No fall damage
             // Play landing sound to "stop" wind effect
             player.playSound(player.getLocation(), Sound.BLOCK_WOOL_BREAK, 0.8f, 1.2f);
-        }
-    }
-
-    // ==================== SKULL CRUSHER MACE ====================
-    @EventHandler
-    public void onMaceSmash(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player player)) return;
-
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (item.getType() != Material.MACE || !item.hasItemMeta()) return;
-
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasItemModel()) return;
-
-        if (!meta.getItemModel().equals(NamespacedKey.fromString("skull_crusher"))) return;
-
-        // Only trigger on falling attacks (mace smash style)
-        if (player.getFallDistance() < 0.5) return;
-
-        Location center = player.getLocation();
-        World world = player.getWorld();
-
-        // Dark expanding particle effect (black radius)
-        new BukkitRunnable() {
-            double radius = 1.5;
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks > 40) { // ~2 seconds
-                    this.cancel();
-                    return;
-                }
-
-                // Expanding black smoke ring
-                for (int i = 0; i < 20; i++) {
-                    double angle = (2 * Math.PI / 20) * i;
-                    double x = Math.cos(angle) * radius;
-                    double z = Math.sin(angle) * radius;
-
-                    Location particleLoc = center.clone().add(x, 0.5, z);
-                    world.spawnParticle(Particle.SMOKE, particleLoc, 1, 0, 0, 0, 0);
-                    world.spawnParticle(Particle.SQUID_INK, particleLoc, 1, 0, 0, 0, 0);
-                }
-
-                radius += 0.25;
-                ticks += 2;
-            }
-        }.runTaskTimer(this, 0L, 2L);
-
-        // Wither particles + sound
-        world.spawnParticle(Particle.WITHER, center, 80, 3, 1, 3, 0.1);
-        player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.7f);
-        player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 0.6f);
-
-        // Apply Wither II to nearby entities
-        double radius = 5.0;
-        for (org.bukkit.entity.Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
-            if (entity instanceof org.bukkit.entity.LivingEntity living && living != player) {
-                living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
-            }
         }
     }
 
