@@ -180,7 +180,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                     ChatColor.DARK_RED + "Landing a smash attack releases a burst of",
                     ChatColor.DARK_RED + "dark energy, afflicting nearby enemies with Wither II."
             ));
-            meta.setItemModel(NamespacedKey.fromString("skull_crusher"));
+            meta.setItemModel(NamespacedKey.fromString("template:skull_crusher"));
             mace.setItemMeta(meta);
         }
         return mace;
@@ -296,7 +296,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasItemModel()) return;
 
-        if (!meta.getItemModel().equals(NamespacedKey.fromString("skull_crusher"))) return;
+        if (!meta.getItemModel().equals(NamespacedKey.fromString("template:skull_crusher"))) return;
 
         // Only trigger on falling attacks (mace smash style)
         if (player.getFallDistance() < 0.5) return;
