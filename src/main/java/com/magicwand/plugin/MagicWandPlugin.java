@@ -286,8 +286,7 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         world.spawnParticle(Particle.SMOKE, center, 150, 4, 2, 4, 0.05);
         world.spawnParticle(Particle.SQUID_INK, center, 80, 3, 1.5, 3, 0.03);
 
-        // Wither particles + sound
-        world.spawnParticle(Particle.WITHER, center, 80, 3, 1, 3, 0.1);
+        // Wither-like sound + explosion feel
         player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.7f);
         player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 0.6f);
 
