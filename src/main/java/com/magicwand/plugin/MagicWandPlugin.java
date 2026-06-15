@@ -281,33 +281,17 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         Location center = player.getLocation();
         World world = player.getWorld();
 
-        // Dark expanding particle effect (black radius)
-        new BukkitRunnable() {
-            double radius = 1.5;
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks > 40) { // ~2 seconds
-                    this.cancel();
-                    return;
-                }
-
-                // Expanding black smoke ring
-                for (int i = 0; i < 20; i++) {
-                    double angle = (2 * Math.PI / 20) * i;
-                    double x = Math.cos(angle) * radius;
-                    double z = Math.sin(angle) * radius;
-
-                    Location particleLoc = center.clone().add(x, 0.5, z);
-                    world.spawnParticle(Particle.SMOKE, particleLoc, 1, 0, 0, 0, 0);
-                    world.spawnParticle(Particle.SQUID_INK, particleLoc, 1, 0, 0, 0, 0);
-                }
-
-                radius += 0.25;
-                ticks += 2;
+        // Dark particle effect (black radius)
+        for (double r = 1.5; r <= 5.5; r += 0.8) {
+            for (int i = 0; i < 24; i++) {
+                double angle = (2 * Math.PI / 24) * i;
+                double x = Math.cos(angle) * r;
+                double z = Math.sin(angle) * r;
+                Location pLoc = center.clone().add(x, 0.8, z);
+                world.spawnParticle(Particle.SMOKE, pLoc, 1, 0, 0, 0, 0);
+                world.spawnParticle(Particle.SQUID_INK, pLoc, 1, 0, 0, 0, 0);
             }
-        }.runTaskTimer(this, 0L, 2L);
+        }
 
         // Wither particles + sound
         world.spawnParticle(Particle.WITHER, center, 80, 3, 1, 3, 0.1);
