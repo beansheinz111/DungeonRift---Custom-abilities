@@ -100,6 +100,11 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                 itemName = "Skull Crusher";
                 giveMessage = "Skull Crusher";
                 break;
+            case "giveflamecrusher":
+                item = createFlameCrusher();
+                itemName = "Flame Crusher";
+                giveMessage = "Flame Crusher";
+                break;
             default:
                 return false;
         }
@@ -181,6 +186,23 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                     ChatColor.DARK_RED + "dark energy, afflicting nearby enemies with Wither II."
             ));
             meta.setItemModel(NamespacedKey.fromString("template:skull_crusher"));
+            mace.setItemMeta(meta);
+        }
+        return mace;
+    }
+
+    private ItemStack createFlameCrusher() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Flame Crusher");
+            meta.setLore(Arrays.asList(
+                    ChatColor.GRAY + "A mace engulfed in eternal flames.",
+                    ChatColor.DARK_RED + "Smashing enemies releases a burst of fire,",
+                    ChatColor.DARK_RED + "igniting all nearby foes."
+            ));
+            meta.setItemModel(NamespacedKey.fromString("flame_crusher"));
             mace.setItemMeta(meta);
         }
         return mace;
@@ -296,7 +318,11 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasItemModel()) return;
 
-        if (!meta.getItemModel().equals(NamespacedKey.fromString("template:skull_crusher"))) return;
+        NamespacedKey model = meta.getItemModel();
+        boolean isSkullCrusher = model.equals(NamespacedKey.fromString("template:skull_crusher"));
+        boolean isFlameCrusher = model.equals(NamespacedKey.fromString("flame_crusher"));
+
+        if (!isSkullCrusher && !isFlameCrusher) return;
 
         // Only trigger on falling attacks (mace smash style)
         if (player.getFallDistance() < 0.5) return;
@@ -304,23 +330,42 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         Location center = player.getLocation();
         World world = player.getWorld();
 
-        // Simple dark particle burst
-        world.spawnParticle(Particle.SMOKE, center, 150, 4, 2, 4, 0.05);
-        world.spawnParticle(Particle.SQUID_INK, center, 80, 3, 1.5, 3, 0.03);
+        if (isSkullCrusher) {
+            // === SKULL CRUSHER EFFECTS ===
+            world.spawnParticle(Particle.SMOKE, center, 150, 4, 2, 4, 0.05);
+            world.spawnParticle(Particle.SQUID_INK, center, 80, 3, 1.5, 3, 0.03);
 
-        // Wither-like sound + explosion feel
-        player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.7f);
-        player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 0.6f);
+            player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.7f);
+            player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 0.6f);
 
-        // Apply Wither II to the directly hit entity + surrounding enemies
-        if (event.getEntity() instanceof LivingEntity target && target != player) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+            // Wither II
+            if (event.getEntity() instanceof LivingEntity target && target != player) {
+                target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+            }
+            for (Entity entity : world.getNearbyEntities(center, 5, 5, 5)) {
+                if (entity instanceof LivingEntity living && living != player && living != event.getEntity()) {
+                    living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+                }
+            }
         }
 
-        double radius = 5.0;
-        for (Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
-            if (entity instanceof LivingEntity living && living != player && living != event.getEntity()) {
-                living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
+        if (isFlameCrusher) {
+            // === FLAME CRUSHER EFFECTS ===
+            world.spawnParticle(Particle.FLAME, center, 200, 4, 2, 4, 0.08);
+            world.spawnParticle(Particle.LAVA, center, 60, 3, 1.5, 3, 0.05);
+
+            player.playSound(center, Sound.ENTITY_BLAZE_SHOOT, 1.2f, 0.8f);
+            player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 0.7f);
+            player.playSound(center, Sound.BLOCK_FIRE_EXTINGUISH, 0.8f, 1.0f);
+
+            // Set entities on fire
+            if (event.getEntity() instanceof LivingEntity target && target != player) {
+                target.setFireTicks(100); // 5 seconds
+            }
+            for (Entity entity : world.getNearbyEntities(center, 5, 5, 5)) {
+                if (entity instanceof LivingEntity living && living != player && living != event.getEntity()) {
+                    living.setFireTicks(80); // 4 seconds
+                }
             }
         }
     }

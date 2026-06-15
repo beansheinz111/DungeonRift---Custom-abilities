@@ -26,6 +26,11 @@ commands:
     usage: /<command> [player]
     permission: magicwand.give
 
+  giveflamecrusher:
+    description: Gives the player the Flame Crusher mace
+    usage: /<command> [player]
+    permission: magicwand.give
+
 permissions:
   magicwand.give:
     description: Allows giving custom magic items
