@@ -21,6 +21,11 @@ commands:
     usage: /<command> [player]
     permission: magicwand.give
 
+  giveskullcrusher:
+    description: Gives the player the Skull Crusher mace
+    usage: /<command> [player]
+    permission: magicwand.give
+
 permissions:
   magicwand.give:
     description: Allows giving custom magic items

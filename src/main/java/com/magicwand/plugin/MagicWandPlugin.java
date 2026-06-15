@@ -95,6 +95,11 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
                 itemName = "Zephyr Blade";
                 giveMessage = "Wind Sword";
                 break;
+            case "giveskullcrusher":
+                item = createSkullCrusher();
+                itemName = "Skull Crusher";
+                giveMessage = "Skull Crusher";
+                break;
             default:
                 return false;
         }
@@ -162,6 +167,23 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
             sword.setItemMeta(meta);
         }
         return sword;
+    }
+
+    private ItemStack createSkullCrusher() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Skull Crusher");
+            meta.setLore(Arrays.asList(
+                    ChatColor.GRAY + "A terrifying mace that crushes the souls of its victims.",
+                    ChatColor.DARK_RED + "Landing a smash attack releases a burst of",
+                    ChatColor.DARK_RED + "dark energy, afflicting nearby enemies with Wither II."
+            ));
+            meta.setItemModel(NamespacedKey.fromString("skull_crusher"));
+            mace.setItemMeta(meta);
+        }
+        return mace;
     }
 
     // ==================== EVENT LISTENER ====================
@@ -290,14 +312,15 @@ public class MagicWandPlugin extends JavaPlugin implements Listener, CommandExec
         player.playSound(center, Sound.ENTITY_WITHER_SHOOT, 1.0f, 0.7f);
         player.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 0.8f, 0.6f);
 
-        // Apply Wither II to nearby entities
+        // Apply Wither II to the directly hit entity + surrounding enemies
+        if (event.getEntity() instanceof LivingEntity target && target != player) {
+            target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1));
+        }
+
         double radius = 5.0;
         for (Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
-            if (entity instanceof LivingEntity) {
-                LivingEntity living = (LivingEntity) entity;
-                if (living != player) {
-                    living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
-                }
+            if (entity instanceof LivingEntity living && living != player && living != event.getEntity()) {
+                living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5 seconds
             }
         }
     }
